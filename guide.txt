@@ -1,0 +1,59 @@
+========================================================================
+                       EDUGAP ANALYZER - PROJECT WORKFLOW GUIDE
+========================================================================
+
+Welcome to the internal workings of EduGap Analyzer (your AI-Powered Career Roadmapper). This document provides a step-by-step breakdown of how data moves from the user interfaces down to the AI and back.
+
+------------------------------------------------------------------------
+STEP 1: USER AUTHENTICATION (Firebase)
+------------------------------------------------------------------------
+1. The user visits the application and clicks "Login with Google".
+2. Firebase Authentication handles the OAuth pop-up and verifies the user.
+3. Once logged in, the app checks the Firebase Firestore database ('users' collection). If the user is new, it creates a profile document for them.
+4. The frontend listens to the 'analyses' collection in Firestore so that it can fetch and display the user's past history of resume analyses in real-time.
+
+------------------------------------------------------------------------
+STEP 2: RESUME UPLOAD & PARSING (Frontend -> Express Backend)
+------------------------------------------------------------------------
+1. On the dashboard, the user uploads their Resume (PDF). 
+2. The React frontend sends this PDF as a "multipart/form-data" request to the local Express backend (specifically the `/api/parse-pdf` endpoint defined in `server.ts`).
+3. The Express backend receives the file in memory using the `multer` library.
+4. The backend then passes the PDF buffer to the `pdf-parse` library, which extracts all the readable text from the document.
+5. The extracted text is sent back to the frontend in a JSON response. 
+
+------------------------------------------------------------------------
+STEP 3: JOB DESCRIPTION INPUT (Gemini Search / Manual)
+------------------------------------------------------------------------
+The user needs a target role to compare their resume against. There are two ways this happens:
+- Manual Paste: The user pastes a full Job Description (JD) text into the textarea.
+- Auto Fetch (AI Powered): The user types a Company (e.g., Google) and a Role (e.g., Frontend React Engineer) and clicks "Fetch JD". 
+   -> The app talks to Google's "gemini-3-flash-preview" model and utilizes its built-in `googleSearch` tool to literally search the web, find the job description for that exact role, and return it to the frontend text box.
+
+------------------------------------------------------------------------
+STEP 4: GAP ANALYSIS & ROADMAP GENERATION (Gemini API)
+------------------------------------------------------------------------
+1. With both the Resume Text and the Job Description Text ready, the user clicks "Generate My Roadmap".
+2. The React app sends a highly specific system prompt to the Google Gemini API (`services/geminiService.ts`).
+3. The prompt asks Gemini to perform 5 specific tasks, and forces it to reply exactly in a JSON schema:
+    - Extract matched technical skills.
+    - Identify missing technical skills (the gaps).
+    - Calculate an overall Match Percentage (score).
+    - Create a detailed 7-day or 30-day "Sprint" learning roadmap in markdown format.
+    - Rewrite the resume bullet points to better match the JD keywords.
+4. Gemini processes the text and returns a perfectly structured JSON object containing all the analysis points.
+
+------------------------------------------------------------------------
+STEP 5: VISUALIZATION & HISTORY SAVING (React & Firestore)
+------------------------------------------------------------------------
+1. The frontend (`App.tsx` and `AnalysisResults.tsx`) takes the Gemini JSON response and beautifully renders it. 
+2. The Match Score is shown, and the roadmap markdown is rendered properly using `react-markdown`.
+3. Simultaneously, the app takes the complete analysis result (along with the original Resume Text and JD) and saves it to a new document in the Firebase Firestore `analyses` collection, attaching the unique User ID (`uid`).
+4. This ensures that the next time the user clicks on the "History" tab, they can view their previous roadmap completely intact without re-querying the AI!
+
+========================================================================
+TECH STACK SUMMARY:
+========================================================================
+- Frontend: React 19, TypeScript, Vite, TailwindCSS
+- Backend: Express JS (Node), Multer, PDF-Parse
+- Database & Auth: Google Firebase (Firestore)
+- AI Model: @google/genai (gemini-3-flash-preview)

@@ -1,0 +1,91 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: users
+    // Document ID: userId (UID)
+    // Fields:
+    //   - displayName: string (required)
+    //   - email: string (required)
+    //   - photoURL: string (optional)
+    //   - role: string (required, enum: ['user', 'admin'])
+    //
+    // Collection: analyses
+    // Document ID: auto-generated
+    // Fields:
+    //   - uid: string (required, must match creator)
+    //   - resumeText: string (required)
+    //   - jobDescription: string (required)
+    //   - skills: list (required)
+    //   - gaps: list (required)
+    //   - matchPercentage: number (required)
+    //   - roadmap: string (required)
+    //   - optimizedResume: string (required)
+    //   - createdAt: timestamp (required)
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "vikrantn2002@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasOnly(['displayName', 'email', 'photoURL', 'role']) &&
+             data.displayName is string && data.displayName.size() > 0 && data.displayName.size() < 100 &&
+             isValidEmail(data.email) &&
+             data.role in ['user', 'admin'];
+    }
+
+    function isValidAnalysis(data) {
+      return data.keys().hasOnly(['uid', 'resumeText', 'jobDescription', 'skills', 'gaps', 'matchPercentage', 'roadmap', 'optimizedResume', 'createdAt']) &&
+             data.uid == request.auth.uid &&
+             data.resumeText is string && data.resumeText.size() < 100000 &&
+             data.jobDescription is string && data.jobDescription.size() < 50000 &&
+             data.skills is list && data.skills.size() < 100 &&
+             data.gaps is list && data.gaps.size() < 100 &&
+             data.matchPercentage is number && data.matchPercentage >= 0 && data.matchPercentage <= 100 &&
+             data.roadmap is string && data.roadmap.size() < 100000 &&
+             data.optimizedResume is string && data.optimizedResume.size() < 100000 &&
+             data.createdAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && request.resource.data.role == 'user';
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) && request.resource.data.role == resource.data.role;
+    }
+
+    match /analyses/{analysisId} {
+      allow read: if isAuthenticated() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && isValidAnalysis(request.resource.data);
+      allow update: if false; // Analyses are immutable
+      allow delete: if isAuthenticated() && (resource.data.uid == request.auth.uid || isAdmin());
+    }
+  }
+}

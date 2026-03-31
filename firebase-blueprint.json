@@ -1,0 +1,43 @@
+{
+  "entities": {
+    "Analysis": {
+      "title": "Analysis",
+      "description": "A resume analysis result for a specific job description.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The user ID of the owner." },
+        "resumeText": { "type": "string", "description": "The text extracted from the resume." },
+        "jobDescription": { "type": "string", "description": "The job description used for analysis." },
+        "skills": { "type": "array", "items": { "type": "string" }, "description": "Extracted skills." },
+        "gaps": { "type": "array", "items": { "type": "string" }, "description": "Identified skill gaps." },
+        "matchPercentage": { "type": "number", "description": "Match score." },
+        "roadmap": { "type": "string", "description": "Generated learning roadmap (markdown)." },
+        "optimizedResume": { "type": "string", "description": "Optimized resume points (markdown)." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the analysis was created." }
+      },
+      "required": ["uid", "resumeText", "jobDescription", "skills", "gaps", "matchPercentage", "roadmap", "optimizedResume", "createdAt"]
+    },
+    "User": {
+      "title": "User",
+      "description": "User profile information.",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] }
+      },
+      "required": ["displayName", "email", "role"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile documents."
+    },
+    "/analyses/{analysisId}": {
+      "schema": "Analysis",
+      "description": "History of resume analyses."
+    }
+  }
+}

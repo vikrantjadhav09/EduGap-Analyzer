@@ -1,0 +1,5 @@
+{
+  "name": "EduGap Analyzer & Roadmap Builder",
+  "description": "A full-stack application that analyzes your resume against a job description, identifies skill gaps, and generates a personalized learning roadmap.",
+  "requestFramePermissions": []
+}
