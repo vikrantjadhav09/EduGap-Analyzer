@@ -11,21 +11,21 @@ import { Toaster, toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { BrainCircuit, Sparkles, Target, ArrowRight, Loader2, FileText, LayoutDashboard, LogIn, LogOut, History, User as UserIcon, Trash2, Calendar } from "lucide-react";
 import { cn } from "@/src/lib/utils";
-import { 
-  auth, 
-  db, 
-  googleProvider, 
-  signInWithPopup, 
-  signOut, 
-  collection, 
-  addDoc, 
-  query, 
-  where, 
-  orderBy, 
-  onSnapshot, 
-  Timestamp, 
-  doc, 
-  setDoc, 
+import {
+  auth,
+  db,
+  googleProvider,
+  signInWithPopup,
+  signOut,
+  collection,
+  addDoc,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  Timestamp,
+  doc,
+  setDoc,
   getDoc,
   handleFirestoreError,
   OperationType
@@ -46,7 +46,7 @@ export default function App() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       setIsAuthReady(true);
-      
+
       if (currentUser) {
         // Ensure user document exists
         const userRef = doc(db, "users", currentUser.uid);
@@ -123,7 +123,7 @@ export default function App() {
     try {
       const analysis = await analyzeResume(resumeText, jobDescription);
       setResults(analysis);
-      
+
       if (user) {
         // Save to history
         await addDoc(collection(db, "analyses"), {
@@ -134,7 +134,7 @@ export default function App() {
           createdAt: Timestamp.now()
         });
       }
-      
+
       toast.success("Analysis complete!");
     } catch (error: any) {
       console.error("Analysis error:", error);
@@ -168,7 +168,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans text-gray-900 selection:bg-blue-100 selection:text-blue-900">
       <Toaster position="top-center" richColors />
-      
+
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -176,13 +176,13 @@ export default function App() {
             <div className="bg-blue-600 p-2 rounded-xl">
               <BrainCircuit className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold tracking-tight">SkillBridge AI</span>
+            <span className="text-xl font-bold tracking-tight">EduGap-Analyzer</span>
           </div>
-          
+
           <div className="flex items-center gap-4">
             {user ? (
               <>
-                <button 
+                <button
                   onClick={() => setShowHistory(!showHistory)}
                   className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
                 >
@@ -197,7 +197,7 @@ export default function App() {
                 </div>
               </>
             ) : (
-              <button 
+              <button
                 onClick={handleLogin}
                 className="bg-gray-900 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-gray-800 transition-all flex items-center gap-2"
               >
@@ -224,11 +224,11 @@ export default function App() {
                 </h2>
                 <button onClick={() => setShowHistory(false)} className="text-sm font-medium text-gray-500 hover:text-gray-900">Back to Analyzer</button>
               </div>
-              
+
               <div className="grid gap-4">
                 {history.length > 0 ? (
                   history.map((item) => (
-                    <div 
+                    <div
                       key={item.id}
                       onClick={() => selectFromHistory(item)}
                       className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:border-blue-300 transition-all cursor-pointer group"
@@ -282,7 +282,7 @@ export default function App() {
                   Bridge the gap between your <span className="text-blue-600">Resume</span> and your <span className="text-blue-600">Dream Job</span>
                 </h1>
                 <p className="text-xl text-gray-500 font-medium">
-                  Upload your resume, paste a job description, and get a personalized 7-day learning roadmap to land the role.
+                  Upload your resume, paste a job description, and get a personalized 7-day's to 30-day's learning roadmap to land the role.
                 </p>
               </div>
 
@@ -410,9 +410,9 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 text-center space-y-4">
           <div className="flex items-center justify-center gap-2">
             <BrainCircuit className="w-5 h-5 text-blue-600" />
-            <span className="font-bold">SkillBridge AI</span>
+            <span className="font-bold">EduGap-Analyzer</span>
           </div>
-          <p className="text-sm text-gray-500 font-medium">© 2026 SkillBridge AI. All rights reserved.</p>
+          <p className="text-sm text-gray-500 font-medium">© 2026 EduGap-Analyzer. All rights reserved.</p>
         </div>
       </footer>
     </div>
