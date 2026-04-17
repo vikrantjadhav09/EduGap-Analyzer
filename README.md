@@ -1,4 +1,3 @@
-````md
 <div align="center">
 
 # 🧠 EduGap Analyzer  
@@ -104,7 +103,6 @@ EduGap Analyzer solves this using AI by:
 ```bash
 git clone <your-repo-url>
 cd edugap-analyzer
-````
 
 ### 2️⃣ Install Dependencies
 
