@@ -2,11 +2,17 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
     "lib": [
       "ES2022",
       "DOM"
     ],
-    "moduleResolution": "Node",
     "outDir": "./dist",
     "rootDir": "./",
     "esModuleInterop": true,
@@ -15,7 +21,7 @@
     "resolveJsonModule": true
   },
   "include": [
-    "server.ts",
-    "src/**/*"
+    "src/**/*",
+    "server.ts"
   ]
 }

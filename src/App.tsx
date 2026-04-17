@@ -236,7 +236,7 @@ export default function App() {
                       <div className="flex items-center justify-between">
                         <div className="space-y-1">
                           <h3 className="font-bold text-lg text-gray-900 group-hover:text-blue-600 transition-colors truncate max-w-md">
-                            {item.jobDescription.substring(0, 60)}...
+                            {item.jobDescription?.substring(0, 60) || "No description"}...
                           </h3>
                           <p className="text-sm text-gray-500 flex items-center gap-2">
                             <Calendar className="w-4 h-4" /> {item.createdAt?.toDate().toLocaleDateString()}
