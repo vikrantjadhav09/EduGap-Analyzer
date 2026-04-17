@@ -1,6 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY! });
 
 export interface AnalysisResult {
   skills: string[];
@@ -25,7 +25,7 @@ export async function fetchJobDescription(companyName: string, role: string): Pr
       },
     });
 
-    return response.text;
+    return response.text ?? "";
   } catch (error: any) {
     if (error?.status === 429 || error?.message?.includes("429")) {
       throw new Error("Gemini API quota exceeded. Please check your billing/plan.");
@@ -84,6 +84,9 @@ export async function analyzeResume(resumeText: string, jobDescription: string):
       },
     });
 
+    if (!response.text) {
+      throw new Error("Invalid response from Gemini");
+    }
     return JSON.parse(response.text);
   } catch (error: any) {
     if (error?.status === 429 || error?.message?.includes("429")) {
